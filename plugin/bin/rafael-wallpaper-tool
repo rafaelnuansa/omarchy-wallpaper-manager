@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+state_file="$state_home/omarchy/current/theme.name"
+theme="$(cat -- "$state_file" 2>/dev/null || true)"
+if [[ ! "$theme" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  notify-send "Wallpaper" "Nama tema aktif tidak valid."
+  exit 1
+fi
+
+local_theme_dir="$config_home/omarchy/themes/$theme"
+if [[ -d "$local_theme_dir" ]]; then
+  background_dir="$local_theme_dir/backgrounds"
+else
+  background_dir="$config_home/omarchy/backgrounds/$theme"
+fi
+
+case "${1:-}" in
+  open-folder)
+    mkdir -p -- "$background_dir"
+    xdg-open "$background_dir" >/dev/null 2>&1 &
+    ;;
+  add)
+    [[ $# -eq 2 && -f "$2" ]] || { echo "Usage: rafael-wallpaper-tool add /path/to/image" >&2; exit 2; }
+    source_path="$2"
+    ext="${source_path##*.}"
+    ext="${ext,,}"
+    case "$ext" in png|jpg|jpeg|webp|avif) ;; *) notify-send "Wallpaper" "Pilih PNG, JPG, WebP, atau AVIF."; exit 2 ;; esac
+    mkdir -p -- "$background_dir"
+    base="$(basename -- "$source_path")"
+    target="$background_dir/$base"
+    if [[ -e "$target" ]]; then
+      target="$background_dir/${base%.*}-$(date +%Y%m%d-%H%M%S).$ext"
+    fi
+    cp -- "$source_path" "$target"
+    omarchy theme bg set "$target"
+    notify-send "Wallpaper ditambahkan" "$base masuk ke tema $theme."
+    ;;
+  *) echo "Usage: rafael-wallpaper-tool add /path/to/image | open-folder" >&2; exit 2 ;;
+esac

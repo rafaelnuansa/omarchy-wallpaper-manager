@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "rafael.wallpaper",
+  "name": "Theme Wallpaper Picker",
+  "version": "1.0.0",
+  "author": "Rafael",
+  "description": "Pick, add, and manage wallpapers for the active Omarchy theme.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "activation": "on-demand",
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Wallpaper manager",
+    "description": "Choose a wallpaper or add one to the active theme.",
+    "category": "Personalization",
+    "aliases": [
+      "wallpaper",
+      "theme-wallpaper"
+    ],
+    "allowMultiple": false
+  }
+}
