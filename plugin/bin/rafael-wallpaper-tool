@@ -22,7 +22,23 @@ else
   live_background_dir="$source_background_dir"
 fi
 
+sync_theme_sources() {
+  [[ "$source_background_dir" != "$live_background_dir" ]] || return 0
+  [[ -d "$source_background_dir" ]] || return 0
+  mkdir -p -- "$live_background_dir"
+  while IFS= read -r -d '' image; do
+    name="$(basename -- "$image")"
+    [[ -e "$live_background_dir/$name" ]] || cp -- "$image" "$live_background_dir/$name"
+  done < <(find "$source_background_dir" -maxdepth 1 -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.webp' \) \
+    -print0 2>/dev/null)
+}
+
 case "${1:-}" in
+  pick)
+    sync_theme_sources
+    omarchy theme bg-switcher
+    ;;
   open-folder)
     mkdir -p -- "$source_background_dir"
     xdg-open "$source_background_dir" >/dev/null 2>&1 &

@@ -1,6 +1,6 @@
 # Theme Wallpaper Manager
 
-A graphical Omarchy bar widget for selecting and adding wallpapers without typing commands. Click the wallpaper icon to open the panel.
+A graphical Omarchy bar widget for selecting and adding wallpapers without typing commands. Click the wallpaper icon to open the panel. Opening the picker first syncs supported images from the custom theme source into Omarchy's live theme snapshot, so wallpapers added to the theme become selectable.
 
 - **Pilih wallpaper** opens Omarchy's built-in picker.
 - **Tambah gambar ke tema** opens an image chooser, saves the image to the active theme, updates the live theme snapshot, and applies it.

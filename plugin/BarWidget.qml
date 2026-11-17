@@ -65,7 +65,11 @@ BarWidget {
         text: "Pilih wallpaper"
         iconText: "󰸉"
         bordered: true
-        onClicked: { root.panelOpen = false; root.bar.run("omarchy theme bg-switcher") }
+        onClicked: {
+          pickerProcess.command = [root.helperPath, "pick"]
+          pickerProcess.running = true
+          root.panelOpen = false
+        }
       }
       Button {
         width: actions.width
@@ -114,4 +118,5 @@ BarWidget {
   }
 
   Process { id: folderProcess }
+  Process { id: pickerProcess }
 }
