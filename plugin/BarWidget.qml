@@ -98,7 +98,7 @@ BarWidget {
     id: imageDialog
     title: "Tambahkan wallpaper ke tema aktif"
     currentFolder: "file://" + Quickshell.env("HOME")
-    nameFilters: ["Gambar wallpaper (*.png *.jpg *.jpeg *.webp *.avif)"]
+    nameFilters: ["Gambar wallpaper (*.png *.jpg *.jpeg *.gif *.bmp *.webp)"]
     onAccepted: {
       addProcess.command = [root.helperPath, "add", selectedFile.toLocalFile()]
       addProcess.running = true

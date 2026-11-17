@@ -7,10 +7,10 @@ A GUI bar widget for changing the wallpaper or adding an image to the currently 
 Click the picture icon in the Omarchy bar. The panel offers:
 
 - **Pilih wallpaper** — opens the built-in Omarchy wallpaper picker.
-- **Tambah gambar ke tema** — opens a graphical image chooser, copies the image to the active theme's wallpaper directory, and applies it.
+- **Tambah gambar ke tema** — opens a graphical image chooser, copies the image to the active theme's persistent wallpaper directory and live picker snapshot, then applies it.
 - **Buka folder wallpaper tema** — opens the same destination folder used by the add action.
 
-Supported formats: PNG, JPG/JPEG, WebP, and AVIF. A duplicate filename gets a timestamp suffix instead of being overwritten.
+Supported formats: PNG, JPG/JPEG, GIF, BMP, and WebP. A duplicate filename gets a timestamp suffix instead of being overwritten.
 
 ## Wallpaper destination
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'notify-send "Wallpaper" "Gagal menambahkan wallpaper. Periksa format dan izin file."' ERR
 
 config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
 state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
-state_file="$state_home/omarchy/current/theme.name"
-theme="$(cat -- "$state_file" 2>/dev/null || true)"
+state_dir="$state_home/omarchy/current"
+theme="$(cat -- "$state_dir/theme.name" 2>/dev/null || true)"
 if [[ ! "$theme" =~ ^[A-Za-z0-9._-]+$ ]]; then
   notify-send "Wallpaper" "Nama tema aktif tidak valid."
   exit 1
@@ -12,31 +13,42 @@ fi
 
 local_theme_dir="$config_home/omarchy/themes/$theme"
 if [[ -d "$local_theme_dir" ]]; then
-  background_dir="$local_theme_dir/backgrounds"
+  # Persist in the user's theme source and mirror into Omarchy's live theme snapshot.
+  source_background_dir="$local_theme_dir/backgrounds"
+  live_background_dir="$state_dir/theme/backgrounds"
 else
-  background_dir="$config_home/omarchy/backgrounds/$theme"
+  # Stock themes are read-only; Omarchy scans this user-owned folder directly.
+  source_background_dir="$config_home/omarchy/backgrounds/$theme"
+  live_background_dir="$source_background_dir"
 fi
 
 case "${1:-}" in
   open-folder)
-    mkdir -p -- "$background_dir"
-    xdg-open "$background_dir" >/dev/null 2>&1 &
+    mkdir -p -- "$source_background_dir"
+    xdg-open "$source_background_dir" >/dev/null 2>&1 &
     ;;
   add)
     [[ $# -eq 2 && -f "$2" ]] || { echo "Usage: rafael-wallpaper-tool add /path/to/image" >&2; exit 2; }
     source_path="$2"
     ext="${source_path##*.}"
     ext="${ext,,}"
-    case "$ext" in png|jpg|jpeg|webp|avif) ;; *) notify-send "Wallpaper" "Pilih PNG, JPG, WebP, atau AVIF."; exit 2 ;; esac
-    mkdir -p -- "$background_dir"
+    # Match formats supported by Omarchy's wallpaper picker and cycling command.
+    case "$ext" in png|jpg|jpeg|gif|bmp|webp) ;; *) notify-send "Wallpaper" "Pilih PNG, JPG, GIF, BMP, atau WebP."; exit 2 ;; esac
+    mkdir -p -- "$source_background_dir" "$live_background_dir"
     base="$(basename -- "$source_path")"
-    target="$background_dir/$base"
-    if [[ -e "$target" ]]; then
-      target="$background_dir/${base%.*}-$(date +%Y%m%d-%H%M%S).$ext"
+    target_name="$base"
+    if [[ -e "$source_background_dir/$target_name" || -e "$live_background_dir/$target_name" ]]; then
+      target_name="${base%.*}-$(date +%Y%m%d-%H%M%S).$ext"
     fi
-    cp -- "$source_path" "$target"
-    omarchy theme bg set "$target"
-    notify-send "Wallpaper ditambahkan" "$base masuk ke tema $theme."
+    source_target="$source_background_dir/$target_name"
+    live_target="$live_background_dir/$target_name"
+    cp -- "$source_path" "$source_target"
+    if [[ "$live_target" != "$source_target" ]]; then cp -- "$source_path" "$live_target"; fi
+    if omarchy theme bg set "$live_target"; then
+      notify-send "Wallpaper ditambahkan" "$target_name masuk ke tema $theme."
+    else
+      notify-send "Wallpaper disimpan" "Gambar sudah masuk ke folder tema $theme, tetapi shell tidak dapat menerapkannya saat ini."
+    fi
     ;;
   *) echo "Usage: rafael-wallpaper-tool add /path/to/image | open-folder" >&2; exit 2 ;;
 esac
